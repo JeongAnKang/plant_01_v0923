@@ -5,8 +5,8 @@
 // 지정한 숫자 이하의 미션은 학생들이 이전 단계를 못 깼어도 강제로 열립니다.
 // 예: 3으로 설정하면 1, 2, 3 미션이 모두 잠금 해제됨. (보상은 클리어해야만 줌)
 const TEACHER_ACCESS = Object.freeze({
-  unlockedMission: 1,
-  unlockedSteps: Object.freeze({ 1: 1, 2: 1, 3: 1, 4: 1, 5: 1 })
+  unlockedMission: 2,
+  unlockedSteps: Object.freeze({ 1: 5, 2: 1, 3: 1, 4: 1, 5: 1 })
 });
 const MISSION_STEP_TOTALS = Object.freeze({ 1: 5, 2: 5, 3: 5, 4: 1, 5: 2 });
 

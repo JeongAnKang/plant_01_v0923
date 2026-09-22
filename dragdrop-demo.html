@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Interact.js 하이브리드 엔진 테스트</title>
+    <!-- Interact.js CDN 호출 -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { font-family: sans-serif; background: #eceff1; padding: 20px; touch-action: none; }
+        
+        .container { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
+
+        /* 빈칸 (드롭존) 스타일 */
+        .dropzone, .pool {
+            width: 150px; min-height: 150px;
+            background: #ffffff; border: 3px dashed #b0bec5; border-radius: 12px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+            padding: 10px; transition: background-color 0.3s;
+        }
+        
+        .pool { width: 100%; border: 3px solid #cfd8dc; } /* 원래 뱃지들이 있던 곳 */
+        
+        /* 드롭존 시각적 피드백 클래스 */
+        .dropzone.is-active { background: #e3f2fd; border-color: #2196f3; } /* 드래그 중 반짝임 */
+        .dropzone.is-target { background: #c8e6c9; border-color: #4caf50; } /* 뱃지가 위로 올라왔을 때 */
+
+        /* 뱃지 스타일 */
+        .badge {
+            width: 100px; padding: 15px;
+            background: #f57f17; color: white; font-weight: bold; text-align: center;
+            border-radius: 8px; cursor: grab; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            /* 핵심: 태블릿 스크롤 방지 및 유저 텍스트 선택 방지 */
+            touch-action: none; user-select: none;
+            transition: transform 0.1s, box-shadow 0.2s;
+        }
+
+        /* 뱃지 시각적 피드백 클래스 */
+        .badge:active { cursor: grabbing; }
+        .badge.is-dragging { opacity: 0.8; box-shadow: 0 10px 15px rgba(0,0,0,0.2); }
+        .badge.is-selected { 
+            outline: 4px solid #d32f2f; 
+            transform: scale(1.05); /* 탭 했을 때 살짝 커짐 */
+        }
+    </style>
+</head>
+
+
+<body>
+
+    <h2>🌱 드래그 앤 드롭 & 탭-탭 테스트</h2>
+    <p>뱃지를 마우스/손가락으로 <strong>끌어서</strong> 넣거나, 뱃지를 <strong>터치(선택)</strong>한 뒤 빈칸을 <strong>터치</strong>해 보세요.</p>
+
+    <!-- 뱃지들이 모여있는 풀(Pool)도 하나의 드롭존으로 만듭니다 -->
+    <div id="badge-pool" class="pool dropzone">
+        <div class="badge" id="badge-1">이산화 탄소</div>
+        <div class="badge" id="badge-2">물</div>
+        <div class="badge" id="badge-3">빛 에너지</div>
+    </div>
+
+    <!-- 목적지 드롭존 -->
+    <div class="container">
+        <div class="dropzone" id="zone-1">광합성 원료 1</div>
+        <div class="dropzone" id="zone-2">광합성 원료 2</div>
+    </div>
+
+    <!-- 2. 우리가 만든 전용 엔진 스크립트 연결 -->
+    <script src="js/dragdrop.js"></script>
+</body>
+</html>

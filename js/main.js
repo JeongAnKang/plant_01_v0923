@@ -7,7 +7,7 @@
 const TEACHER_ACCESS = Object.freeze({
   unlockedMission: 2,
   unlockedSteps: Object.freeze({ 1: 5, 2: 1, 3: 1, 4: 1, 5: 1 })
-});
+  });
 const MISSION_STEP_TOTALS = Object.freeze({ 1: 5, 2: 5, 3: 5, 4: 1, 5: 2 });
 
 
@@ -21,6 +21,7 @@ function getProgress() {
     p = {
       isStarted: false, 
       completedMissions: [], // 🔥 핵심: 학생이 실제로 '완료'한 미션 번호 배열
+      completedSteps: { 1: [], 2: [], 3: [], 4: [], 5: [] },
       maxMission: 0,         // (기존 코드 호환성 유지용)
       m1MaxStep: 1, 
       m2MaxStep: 1, 
@@ -41,9 +42,16 @@ function getProgress() {
   
   if (!Array.isArray(p.completedMissions)) p.completedMissions = [];
   if (!Array.isArray(p.rewards)) p.rewards = [];
+  if (!p.completedSteps || typeof p.completedSteps !== 'object') {
+    p.completedSteps = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+  }
   for (let m = 1; m <= 5; m++) {
     const key = `m${m}MaxStep`;
     p[key] = Math.max(1, Number.parseInt(p[key], 10) || 1);
+    if (!Array.isArray(p.completedSteps[m])) p.completedSteps[m] = [];
+    p.completedSteps[m] = [...new Set(p.completedSteps[m]
+      .map(Number)
+      .filter(step => step >= 1 && step <= MISSION_STEP_TOTALS[m]))];
   }
   return p;
 }
@@ -83,11 +91,26 @@ function canAccessStep(mNum, step) {
   return step >= 1 && step <= getAccessibleMaxStep(mNum);
 }
 
+function markStepCompleted(mNum, step) {
+  const total = MISSION_STEP_TOTALS[mNum] || 1;
+  if (step < 1 || step > total) return false;
+  const p = getProgress();
+  if (!p.completedSteps[mNum].includes(step)) {
+    p.completedSteps[mNum].push(step);
+    p.completedSteps[mNum].sort((a, b) => a - b);
+    saveProgress(p);
+    return true;
+  }
+  return false;
+}
+
 // 🌟 미션을 최종 완료했을 때 호출하는 함수 (각 미션의 마지막 스텝에서 실행)
 // 예: 미션 1을 다 깼으면 completeMission(1) 실행
 function completeMission(mNum) {
     let p = getProgress();
     p[`m${mNum}MaxStep`] = MISSION_STEP_TOTALS[mNum] || p[`m${mNum}MaxStep`] || 1;
+    const finalStep = MISSION_STEP_TOTALS[mNum] || 1;
+    if (!p.completedSteps[mNum].includes(finalStep)) p.completedSteps[mNum].push(finalStep);
     if (!p.completedMissions.includes(mNum)) {
         p.completedMissions.push(mNum);
     }
@@ -97,6 +120,7 @@ function completeMission(mNum) {
 window.getProgress = getProgress;
 window.saveProgress = saveProgress;
 window.completeMission = completeMission;
+window.markStepCompleted = markStepCompleted;
 window.getAccessibleMaxStep = getAccessibleMaxStep;
 window.canAccessStep = canAccessStep;
 window.TEACHER_ACCESS = TEACHER_ACCESS;
@@ -151,12 +175,9 @@ function renderNav() {
 
 // 💡 보상 계산을 위한 공통 함수 (실제로 완료한 것만 체크)
 function getEarnedRewardsCount(p) {
-    // 1. 세부 스텝 진행에 따른 보상 (기존 로직 유지)
-    const stepRewards = Math.max(0, p.m1MaxStep - 1) 
-                      + Math.max(0, p.m2MaxStep - 1) 
-                      + Math.max(0, p.m3MaxStep - 1) 
-                      + Math.max(0, p.m4MaxStep - 1) 
-                      + Math.max(0, p.m5MaxStep - 1);
+    // 접근 가능 범위가 아니라 실제 정답 검증을 통과한 스텝만 보상으로 계산합니다.
+    const stepRewards = Object.values(p.completedSteps || {})
+      .reduce((sum, steps) => sum + (Array.isArray(steps) ? steps.length : 0), 0);
                       
     // 2. 미션 자체를 '완료(Completed)' 했을 때 얻는 보상
     const missionRewards = p.completedMissions.length;
@@ -245,6 +266,8 @@ function showUnlockPopup(title, msg, callback) {
 }
 
 function handleStepUnlock(mNum, targetStep, title, msg, proceedCallback) {
+  // 이 함수는 해당 스텝의 정답 검증이 성공한 뒤에만 호출됩니다.
+  markStepCompleted(mNum, targetStep - 1);
   let p = getProgress();
   if (targetStep > (p[`m${mNum}MaxStep`] || 1)) {
      p[`m${mNum}MaxStep`] = targetStep;

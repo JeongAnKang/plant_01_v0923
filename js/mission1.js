@@ -193,7 +193,8 @@ window.checkM2Step1 = function() {
   if (isQ1Correct && isQ2Correct) {
     msg.style.color = '#2e7d32';
     msg.innerText = "✅ 정답입니다! 식물은 광합성을 통해 스스로 양분을 만들어 살아갑니다.";
-    btnNext.style.display = "inline-flex"; 
+    btnNext.style.display = "inline-flex";
+    if (typeof window.markStepCompleted === 'function') window.markStepCompleted(1, 1);
     btnNext.onclick = () => window.goCustomStep(2);
   } else {
     msg.style.color = '#c62828';
@@ -303,6 +304,7 @@ window.checkChloroplastQuiz = function() {
     document.getElementById('btn-ch-check').style.display = 'none';
     const btnNext = document.getElementById('btn-ch-next');
     btnNext.style.display = 'block';
+    if (typeof window.markStepCompleted === 'function') window.markStepCompleted(1, 2);
   } else {
     msg.style.color = '#d32f2f'; msg.innerText = '❌ 오답입니다. (힌트: 장소는 엽록O, 색소는 엽록O)';
   }
@@ -445,6 +447,7 @@ window.checkStep3Quiz = function() {
 };
 
 window.goStep4WithConfetti = function() {
+    if (typeof window.markStepCompleted === 'function') window.markStepCompleted(1, 3);
     if(typeof window.launchMasterConfetti === 'function') window.launchMasterConfetti();
     else if (typeof window.launchConfetti === 'function') window.launchConfetti();
     setTimeout(() => { window.goCustomStep(4); }, 1000); 
@@ -582,6 +585,7 @@ window.checkExp1 = function() {
       if (distC_Dec <= distO_Dec && distO_Inc <= distC_Inc) {
           msg.style.color = '#2e7d32'; msg.innerText = "✅ 정답입니다! 식물이 이산화탄소를 흡수하여 농도가 감소하고, 산소를 방출하여 증가함을 잘 분석했습니다.";
           btnNext.style.display = "inline-block";
+          if (typeof window.markStepCompleted === 'function') window.markStepCompleted(1, 4);
           btnNext.onclick = () => window.goCustomStep(5);
       } else if (distO_Dec < distC_Dec && distC_Inc < distO_Inc) {
           msg.style.color = '#c62828'; msg.innerText = "❌ 기체의 변화가 잘못 연결되었습니다. 다시 맞춰보세요!"; btnNext.style.display = "none";
@@ -679,7 +683,7 @@ window.checkM1Summary = function() {
           else if (typeof window.launchConfetti === 'function') window.launchConfetti();
           
           if(typeof window.getProgress === 'function' && typeof window.saveProgress === 'function') {
-              var p = window.getProgress(); p.m1MaxStep = 6;
+              var p = window.getProgress(); p.m1MaxStep = 5;
               window.saveProgress(p);
           }
           if (typeof window.completeMission === 'function') window.completeMission(1);

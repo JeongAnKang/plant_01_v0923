@@ -413,16 +413,9 @@ window.updateSimulationCombined = function() {
 };
 
 window.checkConanQuiz = function(btnElem) {
-  var sl = document.getElementById('slider-light');
-  var sc = document.getElementById('slider-co2');
-  var st = document.getElementById('slider-temp');
-  if (sl && sc && st) {
-      var curL = parseInt(sl.value); var curC = parseInt(sc.value); var curT = parseInt(st.value);
-      if (curL < 70 && curC < 70 && curT < 42) {
-          alert("⚠️ 최소한 하나 이상의 요인 슬라이더를 70% 이상 움직여 최적 조건을 충분히 실험해보세요!");
-          return;
-      }
-  }
+  // 코난 모달은 Step 5에서 최적 조건을 이미 달성했을 때만 열립니다.
+  // 따라서 모달의 정답 확인 단계에서는 슬라이더 값을 다시 검사하지 않습니다.
+  // (기존의 70% 재검사 때문에 정답이어도 완료되지 않던 오류 수정)
 
   var getVal = function(id) { var el = document.getElementById(id); return el ? el.value.replace(/\s+/g, '') : ''; };
   var q1 = getVal('conan-q1'); var q2 = getVal('conan-q2'); var q3 = getVal('conan-q3'); var q4 = getVal('conan-q4');
